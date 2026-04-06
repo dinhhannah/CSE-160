@@ -59,7 +59,6 @@ function handleDrawOperationEvent(){
   let op = document.getElementById('operation').value;
   let scalar = parseFloat(document.getElementById('scalar').value) || 0;
 
-
   if (op === "add") {
     let v3 = v1.add(v2); 
     drawVector(v3, "green");
@@ -112,32 +111,29 @@ function handleDrawOperationEvent(){
 }
 
 function areaTriangle(v1, v2) {
-  // calculate area of triangle formed by 2 vectors
+  //calculate area of triangle formed by 2 vectors
   let crossProd = Vector3.cross(v1, v2);
   let area = 0.5 * crossProd.magnitude();
   
   return area;
 }
 
-
-
-
 function main() {  
   console.log("Main is running");
 
-  // Retrieve <canvas> element
+  //retrieve <canvas> element
   var canvas = document.getElementById('example');  
   if (!canvas) { 
     console.log('Failed to retrieve the <canvas> element');
     return false; 
   } 
 
-  // Get the rendering context for 2DCG
+  //get rendering context for 2DCG
   var ctx = canvas.getContext('2d');
 
-  // Draw a black rectangle
+  //draw a black rectangle
   ctx.fillStyle = 'black';
-  ctx.fillRect(0, 0, 400, 400);        // Fill a rectangle with the color
+  ctx.fillRect(0, 0, 400, 400);
 
   let v1 = new Vector3([1, 2, 0])
   drawVector(v1, 'red')

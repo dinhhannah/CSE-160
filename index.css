@@ -10,7 +10,7 @@ body {
     font-family: sans-serif;
 }
 
-a {
+a, a:visited {
     color: cyan;  
     display: flex;
     flex-direction: column;
@@ -21,4 +21,10 @@ a {
 
 a:hover {
     color: #3498db;
+    text-decoration: underline;
+}
+
+a:active {
+    color: #166fab;
+    text-decoration: underline;
 }
