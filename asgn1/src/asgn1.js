@@ -181,6 +181,9 @@ function main() {
     // canvas.onmousemove = click; //draws even when moouse isnt pressed
 
     canvas.onmousemove = function(ev){
+        let [x, y] = convertCoordinatesEventToGL(ev);
+        document.getElementById('coords').innerHTML = `Coords: X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}`;
+        
         if (ev.buttons == 1) { // Check if the left mouse button is pressed
             handleClicks(ev);
         }
@@ -298,14 +301,16 @@ function generatePicture() {
         { points: [0.0, 0.0,   0.2, 0.1,   0.0, 0.6],  color: [120, 225, 200, 1.0] },
 
         // Left Bar of H
-        { points: [-0.07, 0.3,   -0.05, 0.3,   -0.09, -0.0], color: [10, 50, 10, 1.0] },
-        { points: [-0.55, 0.2, -0.55, -0.1, -0.6, -0.1], color: [10, 50, 10, 1.0] },
-        // Right Bar of H
-        { points: [-0.45, 0.2, -0.4, 0.2, -0.45, -0.1], color: [10, 50, 10, 1.0] },
-        { points: [-0.4, 0.2, -0.4, -0.1, -0.45, -0.1], color: [10, 50, 10, 1.0] },
-        // Middle Bar of H
-        { points: [-0.6, 0.08, -0.4, 0.08, -0.6, 0.03], color: [10, 50, 10, 1.0] },
-        { points: [-0.4, 0.08, -0.4, 0.03, -0.6, 0.03], color: [10, 50, 10, 1.0] },
+        { points: [-0.08, 0.35,   -0.06, 0.35,   -0.15, 0.1], color: [10, 50, 10, 1.0] },
+        // // Right Bar of H
+        { points: [-0.05, 0.35,   -0.03, 0.35,   -0.10, 0.1], color: [10, 50, 10, 1.0] },
+        // // Middle Bar of H
+        { points: [-0.1, 0.23,   -0.09, 0.25,   -0.06, 0.2], color: [10, 50, 10, 1.0] },
+
+        //D
+        { points: [0.02, 0.35,   0.04, 0.35,   0.05, 0.1], color: [10, 50, 10, 1.0] },
+        { points: [0.02, 0.35,   0.04, 0.35,   0.12, 0.25], color: [10, 50, 10, 1.0] },
+        { points: [0.05, 0.1,   0.05, 0.15,   0.12, 0.25], color: [10, 50, 10, 1.0] },
         
         //left side face
 
