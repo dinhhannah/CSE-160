@@ -1,0 +1,122 @@
+body {
+    margin: 0;
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #2c3e50;
+    color: white;
+    font-family: sans-serif;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    align-items: center;
+    margin-top: 20px;
+}
+
+#animationButton {
+    background-color: #3498db; /* Blue to match your links */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    width: 100%; /* Make it fill the control panel width */
+    margin-bottom: 5px;
+}
+
+#animationButton:hover {
+    background-color: #2980b9; /* Darker blue on hover */
+}
+
+#animationButton:active {
+    background-color: #1c5980;
+}
+
+.ctrls-section p {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+.ctrls-section {
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px 40px 10px 20px;
+    border-radius: 8px;
+    min-width: 500px;
+}
+
+.ctrls-section input {
+    width: 150px;
+    margin-bottom: 10px;
+}
+
+.ctrls-section span {
+    width: 60px; 
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+
+.cam-and-head-section, .leg-ctrls {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.slider-section {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+
+.leg-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.slider {
+    width: 150px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+canvas {
+    border: 2px solid #ecf0f1;
+    margin-bottom: 20px;
+    background-color: black;
+}
+
+input, select {
+    margin: 5px;
+    padding: 5px;
+    border-radius: 4px;
+    border: none;
+}
+
+a, a:visited{
+    color: cyan;   
+}
+
+a:hover {
+    color: #3498db;
+    text-decoration: underline;
+}
+
+a:active {
+    color: #166fab;
+    text-decoration: underline;
+}

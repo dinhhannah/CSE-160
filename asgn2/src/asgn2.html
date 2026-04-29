@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Asgn 2</title>
+    <link rel="stylesheet" type="text/css" href="asgn2.css" />
+  </head>
+
+  <body onload="main()">
+    <h1>Assignment 2: Blocky 3D Animal</h1>
+    <div id="main-container" class="main-container">
+      <div class="canvas-section">
+        <canvas id="webgl" width="400" height="400">
+            Please use a browser that supports "canvas"
+        </canvas>
+
+        <p id="numdot">XXX</p>
+        <p id="coords">Coords: X: 0.00, Y: 0.00</p>
+        <li>Pyramid for ears</li>
+      </div>
+        
+      <div class="ctrls-section">
+        <div class ="cam-and-head-section">
+          <p><b>Camera Angle:</b></p>  
+          X:<input type="range" min="-90" max="90" value="30" class="slider" id="xcam-angle">
+          Y:<input type="range" min="-90" max="90" value="30" class="slider" id="ycam-angle">
+          Z:<input type="range" min="-90" max="90" value="0" class="slider" id="zcam-angle">
+          
+          <p><b>Head Angle:</b></p>  
+          X:<input type="range" min="-90" max="90" value="30" class="slider" id="xhead-angle">
+          Y:<input type="range" min="-90" max="90" value="30" class="slider" id="yhead-angle">
+          Z:<input type="range" min="-90" max="90" value="0" class="slider" id="zhead-angle">
+        </div>
+
+        <div class="leg-ctrls">
+          <p><b>Front legs:</b></p>
+          <div class="slider-section">
+            <div class="leg-group">
+              Right thigh <input type="range" min="-45" max="45" value="0" class="slider" id="frt-slider">
+              Right calf <input type="range" min="-45" max="45" value="0" class="slider" id="frc-slider">
+            </div>
+
+            <div class="leg-group">
+              Left thigh<input type="range" min="-45" max="45" value="0" class="slider" id="flt-slider">
+              Left calf <input type="range" min="-45" max="45" value="0" class="slider" id="flc-slider">
+            </div>
+          </div>
+    
+          <p><b>Back legs:</b></p>
+          <div class="slider-section">
+            <div class="leg-group">
+              Right thigh <input type="range" min="-45" max="45" value="0" class="slider" id="brt-slider">
+              Right calf <input type="range" min="-45" max="45" value="0" class="slider" id="brc-slider">
+            </div>
+
+            <div class="leg-group">
+              Left thigh<input type="range" min="-45" max="45" value="0" class="slider" id="blt-slider">
+              Left calf <input type="range" min="-45" max="45" value="0" class="slider" id="blc-slider">
+            </div>
+          </div>
+
+          <button id="animationButton">Toggle Animation</button>
+          <p style="font-size: 0.9em; color: #666;">Shift + Click for running animation</p>
+        </div>
+
+      </div>
+    </div>
+
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-matrix.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+
+    <script src="../lib/Point.js"></script>
+    <script src="../lib/Triangle.js"></script>
+    <script src="../lib/Circle.js"></script>
+    <script src="../lib/Cube.js"></script>
+    <script src="asgn2.js"></script>
+  </body>
+
+  <footer style="margin: 30px;">
+    <a href="../../index.html"> Back to assignments list </a>
+  </footer>
+</html>
