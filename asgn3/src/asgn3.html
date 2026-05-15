@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Asgn 3</title>
+    <link rel="stylesheet" type="text/css" href="asgn3.css" />
+  </head>
+
+  <body onload="main()">
+    <h1>Assignment 3: Blocky World</h1>
+    <div id="main-container" class="main-container">
+      <div class="canvas-section">
+        <canvas id="webgl" width="400" height="400">
+            Please use a browser that supports "canvas"
+        </canvas>    
+      </div>
+
+      <div class="controls-section">
+        <button id="animationButton">Animation On/Off</button>
+        <p>Click canvas with Shift to toggle run animation</p>
+        <p id="numdot">Performance: ...</p>
+      </div>
+    </div>
+
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-matrix.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+
+    <!-- <script src="../lib/Vector.js"></script> -->
+    <script src="../lib/Camera.js"></script>
+    <script src="../lib/Point.js"></script>
+    <script src="../lib/Triangle.js"></script>
+    <script src="../lib/Circle.js"></script>
+    <script src="../lib/Cube.js"></script>
+    <script src="asgn3.js"></script>
+    <script src="../lib/World.js"></script>
+  </body>
+
+  <footer style="margin: 30px;">
+    <a href="../../index.html"> Back to assignments list </a>
+  </footer>
+</html>
