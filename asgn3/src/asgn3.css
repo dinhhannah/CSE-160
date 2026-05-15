@@ -14,6 +14,9 @@ canvas {
     border: 2px solid #ecf0f1;
     margin-bottom: 20px;
     background-color: black;
+    display: block;
+    touch-action: none; /* Prevents the browser from 'handling' the mouse/touch */
+    cursor: crosshair;
 }
 
 input, select {
@@ -35,4 +38,26 @@ a:hover {
 a:active {
     color: #166fab;
     text-decoration: underline;
+}
+
+/* Ensure the canvas is "on top" of all other divs */
+#webgl {
+    position: relative;
+    z-index: 999;        /* Force it to the very front */
+    pointer-events: auto; /* Ensure it accepts mouse signals */
+}
+
+.canvas-section, .main-container {
+    pointer-events: none; /* Make the wrappers 'clickable-through' */
+}
+
+.main-container {
+    display: block; /* Turn off flex temporarily */
+    text-align: center;
+    margin-top: 50px;
+}
+
+#webgl {
+    display: inline-block;
+    cursor: crosshair;
 }

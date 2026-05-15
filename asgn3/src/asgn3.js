@@ -183,10 +183,10 @@ function connectVariablesToGLSL(){
         return;
     }
 
-    //set values
-    gl.uniform1i(u_Sampler0, 0);
-    gl.uniform1i(u_Sampler1, 1);
-    gl.uniform1i(u_Sampler2, 2);
+    // //set values
+    // gl.uniform1i(u_Sampler0, 0);
+    // gl.uniform1i(u_Sampler1, 1);
+    // gl.uniform1i(u_Sampler2, 2);
 
     if(!u_Sampler0) {
         console.log('Failed to create sampler0 object');
@@ -220,10 +220,16 @@ function connectVariablesToGLSL(){
 }
 
 function rotateCamera(ev) {
-  camera.panRight(ev.movementX*0.1);
-  camera.panUp(ev.movementY*0.1);
-}
+    if (document.pointerLockElement !== canvas) return;
 
+    let sensitivity = 0.5;
+    camera.panLeft(-ev.movementX * sensitivity);
+    camera.panUp(-ev.movementY * sensitivity);
+
+    // NUCLEAR TEST: If you move the mouse and the screen stays still,
+    // but this log shows DIFFERENT numbers, the issue is 100% the u_ViewMatrix uniform.
+    console.log("X-Look:", camera.at.elements[0].toFixed(2));
+}
 //globals related to UI elements
 let g_selectedColor = [1.0, 1.0, 1.0, 1.0]; // default white
 let g_globalAngle = 0;
@@ -287,34 +293,39 @@ function addActionsforHTMLUI(){
 }
 
 function addActionListeners() {
-    // mouse events
-    canvas.onclick = function(ev) {
-        if(!document.pointerLockElement) {
-            canvas.requestPointerLock();
-        }
+    console.log("Listeners are being initialized right now!");
 
-        console.log(ev.button);
-        
-        if(ev.button == 0) {
-            world.placeBlock();
-        }
+    canvas.onmousedown = function(ev) {
+        canvas.requestPointerLock();
+    };
 
-        else if(ev.button == 2) {
-            world.removeBlock();
-        }
-    }
+    // We use 'onmousemove' directly on the canvas to ensure focus
+    canvas.onmousemove = function(ev) {
+        // Log even if NOT locked to see if we get a signal
+        // console.log("Direct Canvas Move:", ev.clientX); 
 
-    document.addEventListener('pointerlockchange', function(ev) {
-        if(document.pointerLockElement === canvas) {
-            canvas.onmousemove = (ev) => rotateCamera(ev);
-        }
+        if (document.pointerLockElement === canvas) {
+            // If movementX is 0, we try to calculate it manually as a fallback
+            let mx = ev.movementX;
+            let my = ev.movementY;
 
-        else {
-            canvas.onmousemove = null;
+            // EMERGENCY LOG: If this shows up, the mouse is finally talking
+            console.log("MOUSE ACTIVE! Delta X:", mx);
+            rotateCamera(ev);
         }
-    });  
+    };
 }
 
+function rotateCamera(ev) {
+    // movementX/Y are the pixels moved since the last mousemove event
+    let sensitivity = 0.2; 
+    
+    // Pan Left/Right based on horizontal mouse movement
+    camera.panLeft(-ev.movementX * sensitivity); 
+    
+    // Pan Up/Down based on vertical mouse movement
+    camera.panUp(-ev.movementY * sensitivity); 
+}
 function keydown(ev){
     
     // Keyboard controls (don't call renderAllShapes here - tick() handles it)
@@ -346,13 +357,16 @@ function keydown(ev){
         else if (ev.keyCode == 27) { // ESC
             document.exitPointerLock();
         }
-
-        // renderAllShapes();
     };
 }
 
 function main() {
     setUpWebGL();
+
+    // Force the canvas to be the focusable element
+    canvas.setAttribute('tabindex', '0');
+    canvas.focus();
+    
     connectVariablesToGLSL();
     addActionListeners();
     addActionsforHTMLUI();
@@ -363,7 +377,7 @@ function main() {
     buildWorld();
 
     // Specify the color for clearing <canvas>
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clearColor(0.0, 0.5, 0.8, 1.0);
 
     document.onkeydown = keydown;
 
@@ -427,7 +441,7 @@ function updateAnimationAngles(){
         // g_blCalfAngle = -swing * 0.5;
         // g_brCalfAngle = swing * 0.5;
         
-        g_headAngle[0] = 10 * Math.sin(g_seconds * 10);
+        g_headAngle[0] = 10 * Math.sin(g_seconds * 2.5);
     }
 }
 
@@ -450,7 +464,7 @@ function buildWorld() {
     g_sky.textureNum = 0;
     g_sky.color = [0.5, 0.7, 1.0, 1.0];
     g_sky.matrix.translate(0, -1.2, 0);
-    g_sky.matrix.scale(-100, -100, -100);
+    g_sky.matrix.scale(100, 100, 100);
     g_sky.matrix.translate(-0.5, 0, -0.5);
     g_sky.renderSkybox();
 
@@ -641,52 +655,48 @@ function drawMultiColorPyramid(M, colors) {
     }
 }
 
-//based on some data structure that is holding all the information about what to draw, actually draw all the shapes
 function renderAllShapes(){
-    //check time at start of function
     g_startTime = performance.now();
-    
-    // Pass projection and view matrices
-    let projMat = camera.projMat;
-    gl.uniformMatrix4fv(u_ProjectionMatrix, false, camera.projMat.elements);
-
-    let viewMat = camera.viewMat;
-    // viewMat.setLookAt(
-    //     camera.eye.elements[0], camera.eye.elements[1], camera.eye.elements[2],
-    //     camera.at.elements[0], camera.at.elements[1], camera.at.elements[2],
-    //     camera.up.elements[0], camera.up.elements[1], camera.up.elements[2]
-    // );
     camera.updateView();
-    gl.uniformMatrix4fv(u_ViewMatrix, false, camera.viewMat.elements);
 
-    let globalRotMat = new Matrix4();
+    gl.uniformMatrix4fv(u_ProjectionMatrix, false, camera.projMat.elements);
+    gl.uniformMatrix4fv(u_ViewMatrix, false, camera.viewMat.elements);
     gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, new Matrix4().elements);
 
-    // Clear <canvas>
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    
+
+    // --- BIND ALL TEXTURES HERE ---
+    // Unit 0: Sky
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, g_skyTexture);
+    gl.uniform1i(u_Sampler0, 0);
+
+    // Unit 1: Floor
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, g_floorTexture);
+    gl.uniform1i(u_Sampler1, 2);
+
+    // Unit 2: Wall
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, g_wallTexture);
+    gl.uniform1i(u_Sampler2, 1);
+    // ------------------------------
+
     world.drawMap();
     world.drawBlocks();
-    var body = new Cube();
-
-    // Render the dog
-    renderDog();
     
-    // Render ground
-    g_ground.render();
+    // Draw the floor - make sure it uses texture 1
+    g_ground.render(); 
+    
+    renderDog();
+    g_sky.renderSkybox(); // Use your renderSkybox function
 
-    // Render sky
-    g_sky.render();
-
-    // Render walls
     for (let wall of g_walls) {
         wall.render();
-        
     }
 
-    //check time at end of function and show on page
     var duration = performance.now() - g_startTime;
-    sendTextToHTML("numdot: " + g_walls.length + " ms: " + Math.floor(duration) + " fps: " + Math.floor(1000/duration), "numdot");
+    sendTextToHTML(" ms: " + Math.floor(duration) + " fps: " + Math.floor(1000/duration), "numdot");
 }
 
 function renderDog() {
@@ -921,14 +931,18 @@ function initTextures() {
 function loadTexture(gl, n, texture, u_Sampler, image) {
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
     
-    // Use the built-in gl enum mapping
+    // Activate the correct unit
     gl.activeTexture(gl.TEXTURE0 + n);
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
+    // CRITICAL: These parameters allow non-power-of-two images to render
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    
-    // In loadTexture function inside asgn3.js
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-    console.log("finished load texture " + n);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    
+    // Link the sampler to the unit
+    gl.uniform1i(u_Sampler, n); 
+    console.log("Texture " + n + " is fully loaded and bound.");
 }

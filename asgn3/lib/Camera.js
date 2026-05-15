@@ -1,13 +1,16 @@
 class Camera {
     constructor() {
-        this.fov = 60;
         this.eye = new Vector3([0, 0, 3]);
-        this.at = new Vector3([0, 0, -100]);
-        this.up = new Vector3([0, 1, 0]);
+        this.at  = new Vector3([0, 0, -100]);
+        this.up  = new Vector3([0, 1, 0]);
+        
         this.viewMat = new Matrix4();
         this.projMat = new Matrix4();
-        this.projMat.setPerspective(this.fov, canvas.width / canvas.height, 0.1, 1000);
-        this.updateView();
+        
+        // Perspective: 60 degree FOV, Near plane 0.1, Far plane 1000
+        this.projMat.setPerspective(60, canvas.width/canvas.height, 0.1, 1000);
+        
+        this.speed = 0.2; 
     }
 
     updateView() {
@@ -18,58 +21,126 @@ class Camera {
         );
     }
 
-    forward() {
-        let f = new Vector3().set(this.at).sub(this.eye).normalize();
-        this.at.add(f.mul(0.5));
-        this.eye.add(f.mul(0.5));
-        this.updateView();
+    // --- Movement Logic ---
+
+    moveForward() {
+        let f = this.getForwardVector();
+        this.eye.elements[0] += f[0] * this.speed; this.at.elements[0] += f[0] * this.speed;
+        this.eye.elements[1] += f[1] * this.speed; this.at.elements[1] += f[1] * this.speed;
+        this.eye.elements[2] += f[2] * this.speed; this.at.elements[2] += f[2] * this.speed;
     }
 
-    back() {
-        let f = new Vector3().set(this.at).sub(this.eye).normalize();
-        this.at.sub(f.mul(0.5));
-        this.eye.sub(f.mul(0.5));
-        this.updateView();
+    moveBackwards() {
+        let f = this.getForwardVector();
+        this.eye.elements[0] -= f[0] * this.speed; this.at.elements[0] -= f[0] * this.speed;
+        this.eye.elements[1] -= f[1] * this.speed; this.at.elements[1] -= f[1] * this.speed;
+        this.eye.elements[2] -= f[2] * this.speed; this.at.elements[2] -= f[2] * this.speed;
     }
 
-    left() {
-        let f = new Vector3().set(this.at).sub(this.eye);
-        let s = Vector3.cross(f, this.up).normalize();
-        this.at.add(s.mul(0.25));
-        this.eye.add(s.mul(0.25));
-        this.updateView();
+    moveLeft() {
+        let s = this.getSideVector();
+        this.eye.elements[0] += s[0] * this.speed; this.at.elements[0] += s[0] * this.speed;
+        this.eye.elements[1] += s[1] * this.speed; this.at.elements[1] += s[1] * this.speed;
+        this.eye.elements[2] += s[2] * this.speed; this.at.elements[2] += s[2] * this.speed;
     }
 
-    right() {
-        let f = new Vector3().set(this.at).sub(this.eye);
-        let s = Vector3.cross(f, this.up).normalize();
-        this.at.sub(s.mul(0.25));
-        this.eye.sub(s.mul(0.25));
-        this.updateView();
+    moveRight() {
+        let s = this.getSideVector();
+        this.eye.elements[0] -= s[0] * this.speed; this.at.elements[0] -= s[0] * this.speed;
+        this.eye.elements[1] -= s[1] * this.speed; this.at.elements[1] -= s[1] * this.speed;
+        this.eye.elements[2] -= s[2] * this.speed; this.at.elements[2] -= s[2] * this.speed;
     }
 
-    panLeft(deg = 5) {
-        let f = new Vector3().set(this.at).sub(this.eye);
-        let rotationMatrix = new Matrix4().setRotate(deg, this.up.elements[0], this.up.elements[1], this.up.elements[2]);
-        let f_prime = rotationMatrix.multiplyVector3(f);
-        this.at = new Vector3().set(this.eye).add(f_prime);
-        this.updateView();
+    // --- Rotation Logic ---
+
+    panLeft(alpha = 1) {
+        // 1. Get current forward vector
+        let f = [
+            this.at.elements[0] - this.eye.elements[0],
+            this.at.elements[1] - this.eye.elements[1],
+            this.at.elements[2] - this.eye.elements[2]
+        ];
+
+        // 2. Create a rotation matrix
+        let rotationMatrix = new Matrix4();
+        rotationMatrix.setRotate(alpha, this.up.elements[0], this.up.elements[1], this.up.elements[2]);
+        
+        // 3. Manually multiply Matrix4 * Vector (since multiplyVector3 is failing)
+        let m = rotationMatrix.elements;
+        let x = f[0], y = f[1], z = f[2];
+        
+        // Matrix multiplication math
+        let nx = m[0] * x + m[4] * y + m[8]  * z;
+        let ny = m[1] * x + m[5] * y + m[9]  * z;
+        let nz = m[2] * x + m[6] * y + m[10] * z;
+
+        // 4. Update the 'at' point
+        this.at.elements[0] = this.eye.elements[0] + nx;
+        this.at.elements[1] = this.eye.elements[1] + ny;
+        this.at.elements[2] = this.eye.elements[2] + nz;
     }
 
-    panRight(deg = 5) {
-        this.panLeft(-deg);
+    panUp(alpha = 1) {
+        let f = [
+            this.at.elements[0] - this.eye.elements[0],
+            this.at.elements[1] - this.eye.elements[1],
+            this.at.elements[2] - this.eye.elements[2]
+        ];
+
+        // Calculate Side Vector (s = f x up)
+        let s = [
+            f[1] * this.up.elements[2] - f[2] * this.up.elements[1],
+            f[2] * this.up.elements[0] - f[0] * this.up.elements[2],
+            f[0] * this.up.elements[1] - f[1] * this.up.elements[0]
+        ];
+        let slen = Math.sqrt(s[0]*s[0] + s[1]*s[1] + s[2]*s[2]);
+        s = [s[0]/slen, s[1]/slen, s[2]/slen];
+
+        // Create rotation matrix around side vector
+        let rotationMatrix = new Matrix4();
+        rotationMatrix.setRotate(alpha, s[0], s[1], s[2]);
+        
+        let m = rotationMatrix.elements;
+        let x = f[0], y = f[1], z = f[2];
+        
+        let nx = m[0] * x + m[4] * y + m[8]  * z;
+        let ny = m[1] * x + m[5] * y + m[9]  * z;
+        let nz = m[2] * x + m[6] * y + m[10] * z;
+
+        this.at.elements[0] = this.eye.elements[0] + nx;
+        this.at.elements[1] = this.eye.elements[1] + ny;
+        this.at.elements[2] = this.eye.elements[2] + nz;
     }
 
-    panUp(deg = 5) {
-        let f = new Vector3().set(this.at).sub(this.eye);
-        let s = Vector3.cross(f, this.up).normalize();
-        let rotationMatrix = new Matrix4().setRotate(deg, s.elements[0], s.elements[1], s.elements[2]);
-        let f_prime = rotationMatrix.multiplyVector3(f);
-        this.at = new Vector3().set(this.eye).add(f_prime);
-        this.updateView();
+    panRight(alpha = 1) {
+        this.panLeft(-alpha);
     }
 
-    panDown(deg = 5) {
-        this.panUp(-deg);
+
+    // --- Math Helpers ---
+
+    getForwardVector(normalized = true) {
+        let f = [
+            this.at.elements[0] - this.eye.elements[0],
+            this.at.elements[1] - this.eye.elements[1],
+            this.at.elements[2] - this.eye.elements[2]
+        ];
+        if (normalized) {
+            let len = Math.sqrt(f[0]*f[0] + f[1]*f[1] + f[2]*f[2]);
+            return [f[0]/len, f[1]/len, f[2]/len];
+        }
+        return f;
+    }
+
+    getSideVector() {
+        let f = this.getForwardVector(true);
+        // Cross Product: s = up x f
+        let s = [
+            this.up.elements[1] * f[2] - this.up.elements[2] * f[1],
+            this.up.elements[2] * f[0] - this.up.elements[0] * f[2],
+            this.up.elements[0] * f[1] - this.up.elements[1] * f[0]
+        ];
+        let len = Math.sqrt(s[0]*s[0] + s[1]*s[1] + s[2]*s[2]);
+        return [s[0]/len, s[1]/len, s[2]/len];
     }
 }

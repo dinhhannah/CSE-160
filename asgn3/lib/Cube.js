@@ -11,6 +11,7 @@ class Cube {
     render() {
         var rgba = this.color;
         gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
+        gl.uniform1i(u_whichTexture, 1);
 
         // front of cube
         gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
@@ -67,8 +68,11 @@ class Cube {
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, g_skyTexture);
+        gl.uniform1i(u_Sampler0, 0); // Force the sampler to look at Unit 0
 
         gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
+
+        gl.disable(gl.CULL_FACE);
 
         // front of the cube
         gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
@@ -102,6 +106,8 @@ class Cube {
         gl.uniform1i(u_whichTexture, this.textureOption[5]);
         drawTriangle3DUV([0.0, 0.0, 0.0,  1.0, 0.0, 1.0,  1.0, 0.0, 0.0], [0,0,  1,1,  1,0]);
         drawTriangle3DUV([0.0, 0.0, 0.0,  0.0, 0.0, 1.0,  1.0, 0.0, 1.0], [0,0,  0,1,  1,1]);
+        
+        gl.enable(gl.CULL_FACE); // Turn it back on for the dog/walls
     }
 
     renderFast() {
